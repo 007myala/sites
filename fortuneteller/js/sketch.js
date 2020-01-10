@@ -10,9 +10,11 @@
   Wictch - Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
   Tarot - Icons made by <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
   Tarot Knife - Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
+  Stars bg - jeremy-perkins-FsK54FVNRfM-unsplash
 */
 
 var canvas;
+let starsBg;
 var personas = ['A','B','C','D','E','F','G'];
 var topics = ['H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
 var numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
@@ -29,6 +31,12 @@ var topic = '';
 var magicNum = 0;
 var clickX = 0;
 var clickY = 0;
+var pX = 0;
+var pY = 0;
+var tX = 0;
+var tY = 0;
+var nX = 0;
+var nY = 0;
 
 var pTiles = [];
 var tTiles = [];
@@ -36,26 +44,23 @@ var nTiles = [];
 
 var haveFound = "- nothing yet";
 
+function preload(){
+  starsBg = loadImage('../fortuneteller/img/stars.jpg');
+}
 function setup(){
   canvas = createCanvas(windowWidth, windowHeight);
   canvas.style('display','block');
 
   var w = 0; // increments of 50
   for(var i=0; i < 7; i++){
-    var r = random(0,256);
-    var g = random(0,256);
-    var b = random(0,256);
-    var p = new Persona(w,r,g,b,personas[i]);
+    var p = new Persona(w,personas[i]);
     pTiles.push(p);
     w = w + 50;
   }
 
   w = 0;
   for(var i=0; i < 10; i++){
-    var r = random(0,256);
-    var g = random(0,256);
-    var b = random(0,256);
-    var t = new Topic(w,r,g,b,topics[i]);
+    var t = new Topic(w,topics[i]);
     tTiles.push(t);
     w = w + 50;
   }
@@ -64,9 +69,6 @@ function setup(){
   var c = 0;
   var row;
   for(var i=0; i < 30; i++){
-    var r = random(0,256);
-    var g = random(0,256);
-    var b = random(0,256);
     // make 2 rows of 15 tiles each
     if(i<15){
       row = 1;
@@ -75,10 +77,10 @@ function setup(){
     }
     var n;
     if(row == 1){
-      n = new MagicNum(w,r,g,b,numbers[i],row);
+      n = new MagicNum(w,numbers[i],row);
       w = w + 50;
     } else {
-      n = new MagicNum(c,r,g,b,numbers[i],row);
+      n = new MagicNum(c,numbers[i],row);
       c = c + 50;
     }
     nTiles.push(n);
@@ -86,30 +88,33 @@ function setup(){
 }
 
 function draw(){
-  background(0);
+  image(starsBg, 0, 0,windowWidth,windowHeight);
+  background('rgba(0,0,0,0.60)');
+  noStroke();
+  textFont('Georgia');
   // Draw Level 1 - Personas
   fill(255);
-  textSize(12);
+  textSize(18);
   textAlign(LEFT);
-  text("Level 1: Pick your persona",100,50);
+  text("L E V E L  O N E : P I C K  Y O U R  P E R S O N A",100,50);
   for(var i=0; i < pTiles.length; i++){
     pTiles[i].display(); // Get a persona and display
   }
 
   // Draw Level 2 - Topics
   fill(255);
-  textSize(12);
+  textSize(18);
   textAlign(LEFT);
-  text("Level 2: Pick your topic of interest",100,200);
+  text("L E V E L  T W O : P I C K  Y O U R  T O P I C",100,200);
   for(var i=0; i < tTiles.length; i++){
     tTiles[i].display(); // Get a topic and display
   }
 
   // Draw Level 3 - Magic Numbers
   fill(255);
-  textSize(12);
+  textSize(18);
   textAlign(LEFT);
-  text("Level 3: Pick your number",100,350);
+  text("L E V E L  T H R E E : P I C K  Y O U R  N U M B E R",100,350);
   for(var i=0; i < nTiles.length; i++){
     nTiles[i].display(); // Get a lucky/unlucky number
   }
@@ -123,28 +128,62 @@ function draw(){
   }
   // Watch for clicks
   fill(255);
-  textSize(24);
+  textSize(12);
   textAlign(LEFT);
-  text("Clicked persona " + persona + " and topic " + topic + " and" + luckyNumber + "number "+ magicNum + " and have found this " + haveFound, 100, 600);
+  text("Y O U R   F O R T U N E :",100,650);
+  textSize(24);
+  text("Clicked persona " + persona + " and topic " + topic + " and" + luckyNumber + "number "+ magicNum + " and have found this " + haveFound, 100, 700);
+
+  // Draw indicators - to show what line has been clicked.
+  noFill(255);
+  stroke(255);
+  ellipse(pX,pY,50);
+  ellipse(tX,tY,50);
+  ellipse(nX,nY,50);
+
+  // draw lines
+  strokeWeight(2);
+  line(900,50,900,600);
+
+  line(50,600,1350,600);
+
+  // directions
+  textSize(28);
+  textFont('Georgia');
+  fill(255);
+  textAlign(CENTER,CENTER);
+  text("B L O O D  P O E T R Y",1100,120);
+  textSize(14);
+  noStroke();
+  text("(A HIV history ~ fortune-telling game)",1100,150);
+  text("D I R E C T I O N S",1100,200);
+
+  stroke(255);
+  strokeWeight(1);
+  line(1000,210,1200,210);
+
+  textAlign(LEFT);
+  noStroke();
+  text("1. Pick your persona",1000,230);
+  text("2. Pick your topic to base the fortune on",1000,260);
+  text("3. Pick a magic number:",1000,290);
+  text("Some numbers are lucky and others are not!",1015,315);
 }
 
 /* Persona class */
-function Persona(c,r,g,b,p){
+function Persona(c,p){
   this.c = 100+c;
-  this.r = r;
-  this.g = g;
-  this.b = b;
   this.p = p;
   this.cX = this.c + 25;
   this.cY = 125;
 
   this.display = function(){
-    fill(this.r,this.g,this.b);
-    noStroke();
+    noFill();
     // rectMode(CENTER);
     rect(this.c,100,50,50);
     fill(255);
-    textSize(12);
+    textSize(24);
+    textFont('Georgia');
     textAlign(CENTER,CENTER);
     text(this.p,this.cX,this.cY);
   }
@@ -153,12 +192,12 @@ function Persona(c,r,g,b,p){
     var d = dist(mX,mY,this.cX,this.cY);
     if(d < 25){
       // Inside circle i.e distance smaller than radius
-      this.r = 0;
-      this.g = 0;
-      this.b = 0;
       // Lock the persona and everything else.
       personaLocked = true;
       persona = this.p;
+      // Update the persona indicator
+      pX = this.cX;
+      pY = this.cY;
     } else {
       // Outside. Do nothing
     }
@@ -166,21 +205,16 @@ function Persona(c,r,g,b,p){
 }
 
 /* Topics class */
-function Topic(c,r,g,b,t){
+function Topic(c,t){
   this.c = 100 + c;
-  this.r = r;
-  this.g = g;
-  this.b = b;
   this.t = t;
   this.cX = this.c + 25;
   this.cY = 275;
 
   this.display = function(){
-    fill(this.r,this.g,this.b);
-    noStroke();
-    rect(this.c,250,50,50);
     fill(255);
-    textSize(12);
+    textSize(24);
+    textFont('Georgia');
     textAlign(CENTER,CENTER);
     text(this.t,this.cX,this.cY);
   }
@@ -188,21 +222,18 @@ function Topic(c,r,g,b,t){
   this.clickCheck = function(mX,mY){
     var d = dist(mX,mY,this.cX,this.cY);
     if(d < 25){
-      this.r = 0;
-      this.g = 0;
-      this.b = 0;
       topicLocked = true;
       topic = this.t;
+      // Update the topic indicator
+      tX = this.cX;
+      tY = this.cY;
     } else {}
   }
 }
 
 /* MagicNum class */
-function MagicNum(c,r,g,b,n,row){
+function MagicNum(c,n,row){
   this.c = 100 + c;
-  this.r = r;
-  this.g = g;
-  this.b = b;
   this.n = n;
   this.row = row;
   this.l = 0; // 0 (unluck no) and 1 (lucky no)
@@ -210,8 +241,6 @@ function MagicNum(c,r,g,b,n,row){
   this.cY = 0;
 
   this.display = function(){
-    fill(this.r,this.g,this.b);
-    noStroke();
     var y;
     if(this.row == 1){
       y = 400;
@@ -220,9 +249,8 @@ function MagicNum(c,r,g,b,n,row){
       y = 500;
       this.cY = 525;
     }
-    rect(this.c, y, 50, 50);
-    fill(255);
-    textSize(12);
+    textSize(24);
+    textFont('Georgia');
     textAlign(CENTER,CENTER);
     if(this.row == 1){
       y = 380;
@@ -245,15 +273,15 @@ function MagicNum(c,r,g,b,n,row){
   this.clickCheck = function(mX,mY){
     var d = dist(mX,mY,this.cX,this.cY);
     if(d < 25){
-      this.r = 0;
-      this.g = 0;
-      this.b = 0;
       luckLocked = true;
       magicNum = this.n;
+      // Update the persona indicator
+      nX = this.cX;
+      nY = this.cY;
       if(luckyNos.includes(this.n)){
-        haveFound = ":good luck";
+        haveFound = ": good luck";
       } else if(!luckyNos.includes(this.n)){
-        haveFound = ":bad luck";
+        haveFound = ": bad luck";
       }
       if(this.l === 0){
         isLucky = false;
